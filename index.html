@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TechMart - Recently Viewed</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>TechMart</h1>
+        <p>Explore our products</p>
+    </header>
+
+    <main>
+
+        <section class="products-section">
+
+            <h2>All Products</h2>
+
+            <div id="productsContainer" class="products-container"></div>
+
+        </section>
+
+
+        <section class="recent-section">
+
+            <div class="recent-heading">
+
+                <div>
+                    <h2>Recently Viewed</h2>
+                    <p>Your recently viewed products</p>
+                </div>
+
+                <button id="clearHistoryBtn">
+                    Clear History
+                </button>
+
+            </div>
+
+            <div id="recentlyViewedContainer"
+                class="recently-viewed-container">
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <div id="productModal" class="modal">
+
+        <div class="modal-content">
+
+            <button id="closeModal" class="close-btn">
+                &times;
+            </button>
+
+            <div id="productDetails"></div>
+
+        </div>
+
+    </div>
+
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>
