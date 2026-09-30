@@ -1,15 +1,11 @@
-// Store all products in one array
-
-let allProducts = [];
+const products = [];
 
 storeData.categories.forEach(category => {
 
     category.subcategories.forEach(subcategory => {
 
         subcategory.products.forEach(product => {
-
-            allProducts.push(product);
-
+            products.push(product);
         });
 
     });
@@ -17,274 +13,162 @@ storeData.categories.forEach(category => {
 });
 
 
-// Recently viewed products
-
-let recentlyViewed = [];
-
-let recentlyViewedSet = new Set();
+// Sort products by price
+products.sort((a, b) => a.price - b.price);
 
 
-// HTML elements
+// Prefix sum for inventory value
+const prefixSum = [0];
 
-let productsContainer =
-    document.getElementById("productsContainer");
+for (let i = 0; i < products.length; i++) {
 
-let recentlyViewedContainer =
-    document.getElementById("recentlyViewedContainer");
+    const value = products[i].price * products[i].stock;
 
-let clearHistoryBtn =
-    document.getElementById("clearHistoryBtn");
-
-let productModal =
-    document.getElementById("productModal");
-
-let productDetails =
-    document.getElementById("productDetails");
-
-let closeModal =
-    document.getElementById("closeModal");
+    prefixSum.push(prefixSum[i] + value);
+}
 
 
-// Display all products
+// First product with price >= target
+function lowerBound(target) {
 
-function displayProducts() {
+    let left = 0;
+    let right = products.length;
 
-    productsContainer.innerHTML = "";
+    while (left < right) {
 
-    allProducts.forEach(product => {
+        const mid = Math.floor((left + right) / 2);
 
-        let card = document.createElement("div");
+        if (products[mid].price >= target) {
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    return left;
+}
+
+
+// First product with price > target
+function upperBound(target) {
+
+    let left = 0;
+    let right = products.length;
+
+    while (left < right) {
+
+        const mid = Math.floor((left + right) / 2);
+
+        if (products[mid].price > target) {
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    return left;
+}
+
+
+// Display matching products
+function displayProducts(start, end) {
+
+    const container = document.getElementById("productsContainer");
+
+    container.innerHTML = "";
+
+    if (start === end) {
+
+        container.innerHTML = `
+            <p class="empty-state">
+                No products found in this price range.
+            </p>
+        `;
+
+        return;
+    }
+
+    for (let i = start; i < end; i++) {
+
+        const product = products[i];
+
+        const card = document.createElement("div");
 
         card.className = "product-card";
 
         card.innerHTML = `
             <h3>${product.name}</h3>
-
-            <p>Brand: ${product.brand}</p>
-
-            <p>Price: ₹${product.price}</p>
-
-            <p>Rating: ⭐ ${product.rating}</p>
-
-            <p>Stock: ${product.stock}</p>
-
-            <button onclick="viewProduct('${product.id}')">
-                View Product
-            </button>
+            <p><strong>Brand:</strong> ${product.brand}</p>
+            <p><strong>Price:</strong> ₹${product.price}</p>
+            <p><strong>Stock:</strong> ${product.stock}</p>
+            <p><strong>Inventory Value:</strong> ₹${product.price * product.stock}</p>
         `;
 
-        productsContainer.appendChild(card);
-
-    });
-
+        container.appendChild(card);
+    }
 }
 
 
-// View product
+// Search products
+function searchProducts() {
 
-function viewProduct(productId) {
-
-    let product = allProducts.find(
-        product => product.id === productId
+    const minPrice = Number(
+        document.getElementById("minPrice").value
     );
 
-    if (!product) {
-        return;
-    }
+    const maxPrice = Number(
+        document.getElementById("maxPrice").value
+    );
+
+    const errorMessage =
+        document.getElementById("errorMessage");
 
 
-    // Add to recently viewed
+    if (minPrice < 0 || maxPrice < 0) {
 
-    addToRecentlyViewed(productId);
-
-
-    // Show product details
-
-    productDetails.innerHTML = `
-
-        <h2>${product.name}</h2>
-
-        <p>
-            <strong>Brand:</strong>
-            ${product.brand}
-        </p>
-
-        <p>
-            <strong>Price:</strong>
-            ₹${product.price}
-        </p>
-
-        <p>
-            <strong>Rating:</strong>
-            ⭐ ${product.rating}
-        </p>
-
-        <p>
-            <strong>Reviews:</strong>
-            ${product.reviews}
-        </p>
-
-        <p>
-            <strong>Stock:</strong>
-            ${product.stock}
-        </p>
-
-        <p>
-            <strong>Category:</strong>
-            ${product.category}
-        </p>
-
-        <p>
-            <strong>Subcategory:</strong>
-            ${product.subcategory}
-        </p>
-
-    `;
-
-
-    // Open modal
-
-    productModal.style.display = "flex";
-
-}
-
-
-// Add product to recently viewed
-
-function addToRecentlyViewed(productId) {
-
-    // Product already exists
-
-    if (recentlyViewedSet.has(productId)) {
-
-        recentlyViewed =
-            recentlyViewed.filter(id => id !== productId);
-
-    }
-
-
-    // Maximum 5 products
-
-    else if (recentlyViewed.length === 5) {
-
-        let oldestProduct =
-            recentlyViewed.pop();
-
-        recentlyViewedSet.delete(oldestProduct);
-
-    }
-
-
-    // Add latest product at beginning
-
-    recentlyViewed.unshift(productId);
-
-    recentlyViewedSet.add(productId);
-
-
-    // Update recently viewed section
-
-    displayRecentlyViewed();
-
-}
-
-
-// Display recently viewed products
-
-function displayRecentlyViewed() {
-
-    recentlyViewedContainer.innerHTML = "";
-
-
-    // Empty history
-
-    if (recentlyViewed.length === 0) {
-
-        recentlyViewedContainer.innerHTML = `
-            <div class="empty-message">
-                No products viewed yet.
-            </div>
-        `;
+        errorMessage.textContent =
+            "Price cannot be negative.";
 
         return;
     }
 
 
-    // Display products
+    if (minPrice > maxPrice) {
 
-    recentlyViewed.forEach(productId => {
+        errorMessage.textContent =
+            "Minimum price cannot be greater than maximum price.";
 
-        let product = allProducts.find(
-            product => product.id === productId
-        );
-
-        if (!product) {
-            return;
-        }
+        return;
+    }
 
 
-        let card = document.createElement("div");
+    errorMessage.textContent = "";
 
-        card.className = "recent-card";
 
-        card.innerHTML = `
+    const start = lowerBound(minPrice);
 
-            <h3>${product.name}</h3>
+    const end = upperBound(maxPrice);
 
-            <p>₹${product.price}</p>
 
-            <p>⭐ ${product.rating}</p>
+    const count = end - start;
 
-            <button onclick="viewProduct('${product.id}')">
-                View Again
-            </button>
 
-        `;
+    const totalValue =
+        prefixSum[end] - prefixSum[start];
 
-        recentlyViewedContainer.appendChild(card);
 
-    });
+    document.getElementById("productCount").textContent =
+        count;
 
+
+    document.getElementById("inventoryValue").textContent =
+        "₹" + totalValue.toLocaleString("en-IN");
+
+
+    displayProducts(start, end);
 }
 
 
-// Clear history
-
-clearHistoryBtn.addEventListener("click", function() {
-
-    recentlyViewed = [];
-
-    recentlyViewedSet.clear();
-
-    displayRecentlyViewed();
-
-});
-
-
-// Close modal
-
-closeModal.addEventListener("click", function() {
-
-    productModal.style.display = "none";
-
-});
-
-
-// Close modal by clicking outside
-
-productModal.addEventListener("click", function(event) {
-
-    if (event.target === productModal) {
-
-        productModal.style.display = "none";
-
-    }
-
-});
-
-
-// Initial display
-
-displayProducts();
-
-displayRecentlyViewed();
+// Search button
+document.getElementById("searchBtn")
+    .addEventListener("click", searchProducts);

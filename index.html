@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>TechMart - Recently Viewed</title>
+    <title>TechMart - Inventory Range Dashboard</title>
 
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -14,57 +14,66 @@
 
     <header>
         <h1>TechMart</h1>
-        <p>Explore our products</p>
+        <p>Inventory Range Dashboard</p>
     </header>
 
     <main>
 
-        <section class="products-section">
+        <section class="filter-section">
 
-            <h2>All Products</h2>
+            <h2>Filter Products by Price</h2>
 
-            <div id="productsContainer" class="products-container"></div>
+            <div class="inputs">
+
+                <div class="input-group">
+                    <label for="minPrice">Minimum Price</label>
+                    <input type="number" id="minPrice" placeholder="Enter minimum price">
+                </div>
+
+                <div class="input-group">
+                    <label for="maxPrice">Maximum Price</label>
+                    <input type="number" id="maxPrice" placeholder="Enter maximum price">
+                </div>
+
+                <button id="searchBtn">Search</button>
+
+            </div>
+
+            <p id="errorMessage"></p>
 
         </section>
 
 
-        <section class="recent-section">
+        <section class="summary-section">
 
-            <div class="recent-heading">
-
-                <div>
-                    <h2>Recently Viewed</h2>
-                    <p>Your recently viewed products</p>
-                </div>
-
-                <button id="clearHistoryBtn">
-                    Clear History
-                </button>
-
+            <div class="summary-card">
+                <h3>Matching Products</h3>
+                <p id="productCount">0</p>
             </div>
 
-            <div id="recentlyViewedContainer"
-                class="recently-viewed-container">
+            <div class="summary-card">
+                <h3>Total Inventory Value</h3>
+                <p id="inventoryValue">₹0</p>
+            </div>
+
+        </section>
+
+
+        <section class="products-section">
+
+            <h2>Matching Products</h2>
+
+            <div id="productsContainer" class="products-container">
+
+                <p class="empty-state">
+                    Enter a price range to see products.
+                </p>
+
             </div>
 
         </section>
 
     </main>
-
-
-    <div id="productModal" class="modal">
-
-        <div class="modal-content">
-
-            <button id="closeModal" class="close-btn">
-                &times;
-            </button>
-
-            <div id="productDetails"></div>
-
-        </div>
-
-    </div>
 
 
     <script src="js/data.js"></script>
